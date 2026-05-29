@@ -39,16 +39,35 @@ if menu == "➕ Add_expenses":
         if response.status_code == 200:
             st.success("Expense added successfully")
 
-if menu=="📋view_expenses":
-    if st.button("📋ViewExpenses"):
-        response=requests.get(f"{server_loc}/ViewExpenses")
-        all_expenses=response.json()
-        pd_df=pd.DataFrame(all_expenses)
-        st.dataframe(pd_df)
-        if menu=="update_expenses":
-           st.header("updateExpenses")
-           expense_id = st.number_input("Enter Expense ID",min_value=1,step=1)
+elif menu == "📋 View Expenses":
 
+    st.header("📋 View Expenses")
+
+    if st.button("Load Expenses"):
+
+        response = requests.get(
+            f"{server_loc}/get_expenses"
+        )
+
+        if response.status_code == 200:
+
+            data = response.json()
+
+            expenses = data.get("expenses", [])
+
+            if len(expenses) > 0:
+
+                df = pd.DataFrame(expenses)
+
+                st.dataframe(df)
+
+                st.line_chart(df["amount"])
+
+            else:
+                st.warning("No expenses found")
+
+        else:
+            st.error(response.text)
     title = st.text_input("Enter New Title")
     amount=st.number_input("enter amount",min_value=0.0,step=50.0)
     category=st.selectbox("select category type",["food","travel","shopping","entertainment","other"])
